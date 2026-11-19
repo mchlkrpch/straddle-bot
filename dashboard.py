@@ -2,10 +2,11 @@
 import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
+from threading import Thread
 from urllib.parse import parse_qsl, urlsplit
+import webbrowser
 
 from reproduce import ROOT, TASK, prepare_engine
 
@@ -39,6 +40,7 @@ class Dashboard(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--open', action='store_true', help='Open the visualizer in the default browser.')
     parser.add_argument('--export-charts', action='store_true', help='Write the three baseline figures and exit.')
     args = parser.parse_args()
     with TemporaryDirectory(prefix='btc-dashboard-') as tmp:
@@ -57,7 +59,10 @@ def main():
             return
         with HTTPServer(('127.0.0.1', args.port), Dashboard) as server:
             server.calculate = lambda query: calculate(market, query)
-            print(f'http://127.0.0.1:{server.server_port}', flush=True)
+            url = f'http://127.0.0.1:{server.server_port}/'
+            print(url, flush=True)
+            if args.open:
+                Thread(target=webbrowser.open_new_tab, args=(url,), daemon=True).start()
             try:
                 server.serve_forever()
             except KeyboardInterrupt:
