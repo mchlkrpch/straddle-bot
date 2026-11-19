@@ -75,11 +75,14 @@ def stats(rows,result):
     ds=list(daily(rows,result['start'],result['end']))
     out={}
     for j,b in enumerate(BOOKS,1):
-        changes=[v[j]/u[j]-1 for u,v in zip(ds,ds[1:])]
+        # Matched benchmark quantities can exhaust a comparison account. Cash P&L
+        # is still defined, percentage performance after exhaustion is not.
+        solvent = result['dd'][b] < 1 and all(row[j] > 0 for row in ds)
+        changes = [v[j]/u[j]-1 for u,v in zip(ds,ds[1:])] if solvent else []
         profits=[r['components'][b]['net'] for r in rows]
         sigma=statistics.stdev(changes) if len(changes)>1 else 0
-        out[b]=dict(pnl=sum(profits),cagr=(ds[-1][j]/CAPITAL)**(365/(len(ds)-1))-1,dd=result['dd'][b],
-            sharpe=statistics.mean(changes)*math.sqrt(365)/sigma if sigma else 0,
+        out[b]=dict(pnl=sum(profits),cagr=(ds[-1][j]/CAPITAL)**(365/(len(ds)-1))-1 if solvent else None,dd=result['dd'][b],
+            sharpe=(statistics.mean(changes)*math.sqrt(365)/sigma if sigma else 0) if solvent else None,
             wins=sum(x>0 for x in profits),worst5mean=statistics.mean(sorted(profits)[:math.ceil(.05*len(profits))]) if profits else 0)
     return out
 

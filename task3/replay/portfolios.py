@@ -48,7 +48,9 @@ def account(market, book, start, end, *, settings, gate_level):
         new_year = day.month == 1 and day.day == 1
         if new_year or stamp == end_time:
             nav = history[bisect_right(stamps, stamp) - 1][1]
-            yearly[str(day.year - int(new_year))] = nav / opening - 1
+            yearly[str(day.year - int(new_year))] = nav / opening - 1 if opening > 0 else None
             opening = nav
-    return dict(cagr=(equity / CAPITAL) ** (365 * DAY / (end_time - timestamp(start))) - 1,
+    solvent = state[book]['dd'] < 1 and equity > 0
+    growth = (equity / CAPITAL) ** (365 * DAY / (end_time - timestamp(start))) - 1 if solvent else None
+    return dict(cagr=growth,
                 max_dd=state[book]['dd'], n=cycles, annual=yearly)

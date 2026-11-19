@@ -10,7 +10,7 @@
 <h2>Три торговых цикла</h2><div id="cases"></div>
 <script>
 const labels=['Стрэддл с гридом','Стрэддл','Грид','Стрэддл с Δ-хеджем'],books=['combo','straddle','grid','delta'],colors=['#176657','#4073aa','#98642e','#9a4755'],ns='http://www.w3.org/2000/svg';
-const cash=x=>Math.round(x).toLocaleString('ru-RU'),pct=x=>(100*x).toFixed(2).replace('.',',')+'%',num=x=>x.toFixed(2).replace('.',',');
+const cash=x=>Math.round(x).toLocaleString('ru-RU'),pct=x=>x===null?'—':(100*x).toFixed(2).replace('.',',')+'%',num=x=>x===null?'—':x.toFixed(2).replace('.',',');
 function table(el,heads,rows){el.replaceChildren();for(const [i,line] of [heads,...rows].entries()){const tr=el.insertRow();for(const val of line){const td=document.createElement(i?'td':'th');td.textContent=val;tr.append(td)}}}
 function chart(parent,lines,dates,level=[],height=212){const width=920,left=71,right=16,top=14,bottom=25;
 const all=lines.flatMap(s=>s.val).concat(level);let lo=all.reduce((a,b)=>Math.min(a,b),Infinity),hi=all.reduce((a,b)=>Math.max(a,b),-Infinity);if(lo===hi){lo-=1;hi+=1}const pad=(hi-lo)*.035;lo-=pad;hi+=pad;
@@ -22,6 +22,10 @@ level.forEach(v=>node('line',{x1:left,x2:width-right,y1:y(v),y2:y(v),stroke:'#c3
 lines.forEach(s=>node('polyline',{points:s.val.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' '),fill:'none',stroke:s.color,'stroke-width':1.6}));
 for(let i of [0,dates.length-1])node('text',{x:x(i),y:height-3,'font-size':11,'text-anchor':i?'end':'start'},dates[i]);}
 function show(data){const {result:r,cases,components:c,equity:e}=data;document.querySelector('#status').textContent=r.start+' — '+r.end+' · '+r.cycles+' завершённых циклов. Входы опционов моделируются по архивным сделкам.';
+if (Object.values(r.books).some(book => book.cagr === null) ||
+    Object.values(data.independent).some(book => book.cagr === null)) {
+  document.querySelector('#status').textContent += ' Один из счетов исчерпал капитал. Для него CAGR и Sharpe не определены; денежный P&L сравнения использует исходные объёмы.';
+}
 const independent=data.independent;const years=Object.keys(independent.combo.annual);const names={combo:'Стрэддл с гридом',grid:'Грид бокового рынка',delta:'Стрэддл, хедж 50%'};
 table(document.querySelector('#standalone'),['Бот',...years,'CAGR','Макс. просадка','Циклы'],Object.entries(independent).map(([b,m])=>[names[b],...years.map(y=>pct(m.annual[y])),pct(m.cagr),pct(m.max_dd),m.n]));
 table(document.querySelector('#metrics'),['Конструкция','P&L, USDC','CAGR','Макс. просадка','Sharpe','Худшие 5%, USDC','В плюсе'],books.map((b,i)=>{let m=r.books[b];return [labels[i],cash(m.pnl),pct(m.cagr),pct(m.dd),num(m.sharpe),cash(m.worst5mean),m.wins+'/'+r.cycles]}));
