@@ -5,7 +5,7 @@
 - [Тренд и стрэддл с гридом, 50/50](task3/core/combined.py)
 - [Чистый стрэддл (бенчмарк)](task3/core/straddle.py)
 
-[Отчёт в PDF](report/report.pdf)
+[Отчёт в PDF](report/report.pdf) · [Убыточные периоды шести стратегий (PDF)](report/loss-periods.pdf)
 
 **Запуск визуализатора** одной командой из корня репозитория (Python 3.10+):
 
