@@ -1,0 +1,143 @@
+{
+  "parameters": {
+    "horizon": 42,
+    "target_vol": 0.45
+  },
+  "bot_sha256": "a87b94ddc087d553fc1dd89d374c319803abf5b0431e31c0e54d8d125e5b8e13",
+  "selection_sha256": "cadb65da0b551ede1c347ee19b0225b4c8b875165dc136a34a324589b1c3b72c",
+  "instrument": "BTC_USDC-PERPETUAL",
+  "initial_capital": 150000.0,
+  "archive": {
+    "start": "2022-03-15T00:00+00:00",
+    "end": "2026-11-14T00:00+00:00",
+    "bars": 491040,
+    "funding_hours": 40920,
+    "inactive_bars": 50666
+  },
+  "results": {
+    "full": {
+      "start": "2022-05-01",
+      "end": "2026-11-14",
+      "total_return": 1.0149890785849656,
+      "cagr": 0.16676673186293178,
+      "max_drawdown": 0.426039033014883,
+      "volatility": 0.3274276207082031,
+      "sharpe": 0.63375749383868,
+      "gross": 207459.90747999915,
+      "funding": -30290.600374232527,
+      "fees": 13970.999492310011,
+      "slippage": 7983.428281319999,
+      "carry": 2966.5175443917624,
+      "trades": 1644,
+      "turnover": 39917141.406599976,
+      "days": 1658,
+      "avg_abs_weight": 0.5983032921923013,
+      "pnl": 152248.36178774486,
+      "ending_equity": 302248.36178774486,
+      "signals_executed": 1658,
+      "median_wait_minutes": 5.0,
+      "max_wait_minutes": 60.0
+    },
+    "older": {
+      "start": "2022-05-01",
+      "end": "2025-09-06",
+      "total_return": 0.5475199769555856,
+      "cagr": 0.13906899242720616,
+      "max_drawdown": 0.426039033014883,
+      "volatility": 0.33272252219410897,
+      "sharpe": 0.5568563378076079,
+      "gross": 128760.72834999733,
+      "funding": -30322.017433526584,
+      "fees": 9113.61467290751,
+      "slippage": 5207.7798130899955,
+      "carry": 1989.3198871353873,
+      "trades": 1215,
+      "turnover": 26038899.06544997,
+      "days": 1224,
+      "avg_abs_weight": 0.5902602144368211,
+      "pnl": 82127.99654333785,
+      "ending_equity": 232127.99654333785,
+      "signals_executed": 1224,
+      "median_wait_minutes": 5.0,
+      "max_wait_minutes": 60.0
+    },
+    "forward": {
+      "start": "2026-04-10",
+      "end": "2026-11-14",
+      "total_return": 0.18258536460777552,
+      "cagr": 0.32417176518916,
+      "max_drawdown": 0.15110469629179335,
+      "volatility": 0.29907547608480156,
+      "sharpe": 1.0866603812589772,
+      "gross": 30731.73538000016,
+      "funding": -571.7735909412265,
+      "fees": 1545.0366328600005,
+      "slippage": 882.87807592,
+      "carry": 344.2423891126215,
+      "trades": 211,
+      "turnover": 4414390.3796,
+      "days": 218,
+      "avg_abs_weight": 0.7069598767644821,
+      "pnl": 27387.804691166326,
+      "ending_equity": 177387.80469116633,
+      "signals_executed": 218,
+      "median_wait_minutes": 5.0,
+      "max_wait_minutes": 40.0
+    },
+    "full_extra_5bps": {
+      "start": "2022-05-01",
+      "end": "2026-11-14",
+      "total_return": 0.8376080618718547,
+      "cagr": 0.14333602190578132,
+      "max_drawdown": 0.4315991760666572,
+      "volatility": 0.3274107997762918,
+      "sharpe": 0.5717924990757339,
+      "gross": 197525.86836000238,
+      "funding": -29212.42412752983,
+      "fees": 13282.652875814007,
+      "slippage": 26565.305751628013,
+      "carry": 2824.2763242523492,
+      "trades": 1649,
+      "turnover": 37950436.78804001,
+      "days": 1658,
+      "avg_abs_weight": 0.5983032921923013,
+      "pnl": 125641.20928077819,
+      "ending_equity": 275641.2092807782,
+      "signals_executed": 1658,
+      "median_wait_minutes": 5.0,
+      "max_wait_minutes": 60.0
+    }
+  },
+  "yearly_returns": [
+    {
+      "year": 2022,
+      "start_equity": 150000.0,
+      "ending_equity": 131489.9062498227,
+      "total_return": -0.12340062500118198
+    },
+    {
+      "year": 2023,
+      "start_equity": 131489.9062498227,
+      "ending_equity": 204711.0544878769,
+      "total_return": 0.556857559080912
+    },
+    {
+      "year": 2024,
+      "start_equity": 204711.0544878769,
+      "ending_equity": 266972.1961070563,
+      "total_return": 0.30414157054164614
+    },
+    {
+      "year": 2025,
+      "start_equity": 266972.1961070563,
+      "ending_equity": 248961.68823503243,
+      "total_return": -0.06746211079149833
+    },
+    {
+      "year": 2026,
+      "start_equity": 248961.68823503243,
+      "ending_equity": 302248.36178774486,
+      "total_return": 0.21403563709130657
+    }
+  ]
+}
