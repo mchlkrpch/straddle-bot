@@ -28,13 +28,18 @@ def verify(actual,expected,keys):
             if not equal:
                 raise ValueError(f'{actual.name}: {k} {v} != {control[k]}')
 
+def prepare_engine(tmp):
+    """Unpack the same versioned code and market archive for both entry points."""
+    engine=Path(tmp)/'replay'
+    shutil.copytree(TASK/'replay',engine)
+    for archive in sorted((TASK/'data').glob('*.zip')):
+        with ZipFile(archive) as z:
+            z.extractall(engine)
+    return engine
+
 def main():
     with TemporaryDirectory(prefix='btc-task3-') as tmp:
-        engine=Path(tmp)/'replay'
-        shutil.copytree(TASK/'replay',engine)
-        for archive in sorted((TASK/'data').glob('*.zip')):
-            with ZipFile(archive) as z:
-                z.extractall(engine)
+        engine = prepare_engine(tmp)
         cal=engine/'calibration'
         paths=[TASK,engine/'execution_4pct',cal,cal/'trend_original',engine]
         env=dict(os.environ,PYTHONPATH=os.pathsep.join(map(str,paths)),PYTHONDONTWRITEBYTECODE='1')

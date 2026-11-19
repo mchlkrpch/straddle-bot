@@ -1,0 +1,67 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Стрэддл и грид · Deribit</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#182925;background:#f6f7f4}body{max-width:1040px;margin:auto;padding:28px 20px 60px}h1{font:500 2.5rem Georgia,serif;margin:0 0 20px}h2{font:500 1.5rem Georgia,serif;margin:28px 0 12px}form,.panel{background:white;border:1px solid #d6dcd6;border-radius:7px;padding:17px}form{display:flex;align-items:end;flex-wrap:wrap;gap:10px}label{font-size:.77rem;color:#43554e;display:grid;gap:4px}input,select,button{font:inherit;padding:6px;border:1px solid #9baba3;border-radius:4px}input[type=number]{width:58px}button{background:#164c42;color:white;cursor:pointer;padding:7px 12px}button:disabled{opacity:.65}.panel{overflow:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{border-bottom:1px solid #e1e6e2;text-align:right;padding:6px;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#42554d;font-size:.83rem}.chart{display:block;width:100%;height:auto;min-width:420px}.case{margin:16px 0}.case p,#status,small{font-size:.85rem;color:#485b53}#status{min-height:18px}svg text{font-family:system-ui,sans-serif;fill:#43554e}.key{margin:4px 0;display:flex;gap:12px;flex-wrap:wrap}.key span{font-size:.81rem}p{line-height:1.45}
+</style><h1>Стрэддл и грид на BTC</h1>
+<h2>Итоговые боты отчёта с 1 января 2024 года, USDC</h2>
+<div class="panel"><div id="recent-legend" class="key"></div><div id="recent-chart"></div></div>
+<h2>Исходный эксперимент со стрэддлом</h2>
+<form id="settings"><label>Начало UTC<input name="start" type="date" value="2022-05-01" required></label><label>Конец UTC (искл.)<input name="end" type="date" value="2026-11-14" required></label><label>Шаг, б.п.<input name="step" type="number" value="50" min="10" max="300" required></label><label>Объём, доля Γh<input name="size" type="number" value="0.5" step="0.05" min="0" max="2" required></label><label>Ширина, доля премии<input name="width" type="number" value="1" step="0.05" min=".2" max="2" required></label><label>Срок, дней<select name="days"><option>7</option><option selected>14</option><option>21</option><option>28</option></select></label><label>Диапазон / премия ≥<input name="gate" type="number" value="1" step=".05" min="0" max="3" required></label><button type="submit">Пересчитать</button></form>
+<small>Архив сроков 7, 21 и 28 дней начинается 01.08.2025. Параметры формы меняют исходный эксперимент.</small><p id="status" role="status"></p><h2>Автономные счета исходного эксперимента</h2><div class="panel"><table id="standalone"></table></div><h2>Сравнение на одинаковых входах</h2><div class="panel"><table id="metrics"></table></div><h2>Капитал, USDC</h2><div class="panel"><div id="legend" class="key"></div><div id="equity"></div></div><h2>Из чего сложился результат связки</h2><div class="panel"><table id="components"></table></div>
+<h2>Три торговых цикла</h2><div id="cases"></div>
+<script>
+const labels=['Стрэддл с гридом','Стрэддл','Грид','Стрэддл с Δ-хеджем'],books=['combo','straddle','grid','delta'],colors=['#176657','#4073aa','#98642e','#9a4755'],ns='http://www.w3.org/2000/svg';
+const cash=x=>Math.round(x).toLocaleString('ru-RU'),pct=x=>(100*x).toFixed(2).replace('.',',')+'%',num=x=>x.toFixed(2).replace('.',',');
+function table(el,heads,rows){el.replaceChildren();for(const [i,line] of [heads,...rows].entries()){const tr=el.insertRow();for(const val of line){const td=document.createElement(i?'td':'th');td.textContent=val;tr.append(td)}}}
+function chart(parent,lines,dates,level=[],height=212){const width=920,left=71,right=16,top=14,bottom=25;
+const all=lines.flatMap(s=>s.val).concat(level);let lo=all.reduce((a,b)=>Math.min(a,b),Infinity),hi=all.reduce((a,b)=>Math.max(a,b),-Infinity);if(lo===hi){lo-=1;hi+=1}const pad=(hi-lo)*.035;lo-=pad;hi+=pad;
+const svg=document.createElementNS(ns,'svg');svg.setAttribute('class','chart');svg.setAttribute('viewBox','0 0 '+width+' '+height);parent.append(svg);
+const y=v=>top+(hi-v)/(hi-lo)*(height-top-bottom),x=i=>left+i*(width-left-right)/Math.max(1,dates.length-1);
+function node(tag,attrs,str){const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(str)n.textContent=str;svg.append(n)}
+for(let j=0;j<4;j++){const v=lo+j/3*(hi-lo);node('line',{x1:left,x2:width-right,y1:y(v),y2:y(v),stroke:'#e7ebe6'});node('text',{x:left-7,y:y(v)+4,'font-size':11,'text-anchor':'end'},Math.abs(v)<10?num(v):cash(v))}
+level.forEach(v=>node('line',{x1:left,x2:width-right,y1:y(v),y2:y(v),stroke:'#c3c5bf','stroke-width':.7}));
+lines.forEach(s=>node('polyline',{points:s.val.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' '),fill:'none',stroke:s.color,'stroke-width':1.6}));
+for(let i of [0,dates.length-1])node('text',{x:x(i),y:height-3,'font-size':11,'text-anchor':i?'end':'start'},dates[i]);}
+function show(data){const {result:r,cases,components:c,equity:e}=data;document.querySelector('#status').textContent=r.start+' — '+r.end+' · '+r.cycles+' завершённых циклов. Входы опционов моделируются по архивным сделкам.';
+const independent=data.independent;const years=Object.keys(independent.combo.annual);const names={combo:'Стрэддл с гридом',grid:'Грид бокового рынка',delta:'Стрэддл, хедж 50%'};
+table(document.querySelector('#standalone'),['Бот',...years,'CAGR','Макс. просадка','Циклы'],Object.entries(independent).map(([b,m])=>[names[b],...years.map(y=>pct(m.annual[y])),pct(m.cagr),pct(m.max_dd),m.n]));
+table(document.querySelector('#metrics'),['Конструкция','P&L, USDC','CAGR','Макс. просадка','Sharpe','Худшие 5%, USDC','В плюсе'],books.map((b,i)=>{let m=r.books[b];return [labels[i],cash(m.pnl),pct(m.cagr),pct(m.dd),num(m.sharpe),cash(m.worst5mean),m.wins+'/'+r.cycles]}));
+const eq=document.querySelector('#equity');eq.replaceChildren();chart(eq,books.map((b,j)=>({val:e.map(row=>row[j+1]),color:colors[j]})),e.map(row=>row[0]));
+const leg=document.querySelector('#legend');leg.replaceChildren();labels.forEach((s,j)=>{const n=document.createElement('span');n.style.color=colors[j];n.textContent='━ '+s;leg.append(n)});
+const keys={delta:'Дельта',gamma:'Гамма',theta:'Тета',vega:'Вега',residual:'Остаток переоценки',perp:'Ценовой P&L грида',funding:'Фандинг',option_spread:'Опционный спред и тик',option_fee:'Комиссия покупки',delivery_fee:'Комиссия расчёта',perp_fee:'Комиссии перпетуала',slippage:'Проскальзывание',capital:'Стоимость капитала',conversion:'Конвертация BTC',net:'Чистый результат'};
+table(document.querySelector('#components'),['Компонент','USDC'],Object.entries(keys).map(([k,n])=>[n,cash(c[k]||0)]));
+const box = document.querySelector('#cases');
+box.replaceChildren();
+if (!cases.length) box.textContent = 'За выбранный период нет завершённых циклов.';
+for (const cycle of cases) {
+  const card = document.createElement('section');
+  card.className = 'panel case';
+  const figure = document.createElement('img');
+  figure.className = 'chart';
+  figure.alt = cycle.label + ' цикл: цена BTC, уровни сетки и позиция. P&L ' + cash(cycle.net) + ' USDC.';
+  figure.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(cycle.svg);
+  card.append(figure);
+  box.append(card);
+}
+}
+async function load(url){const status=document.querySelector('#status'),btn=document.querySelector('button');btn.disabled=true;status.textContent='Идёт расчёт…';try{const r=await fetch(url);if(!r.ok)throw Error(await r.text());show(await r.json())}catch(e){status.textContent='Расчёт не выполнен. '+e.message; for(const id of ['standalone','metrics','equity','legend','components','cases']) document.getElementById(id).replaceChildren()}finally{btn.disabled=false}}
+async function showComparison(){
+  const area=document.querySelector('#recent-chart');
+  try {
+    const response=await fetch('/comparison.csv');
+    if(!response.ok) throw Error('Не удалось загрузить ряд капитала.');
+    const rows=(await response.text()).trim().split(/\r?\n/).slice(1).map(line=>line.split(','));
+    const names=['Стрэддл + грид','Грид','Стрэддл + дельта-хедж','Тренд за 42 дня','Тренд + стрэддл с гридом (50/50)'];
+    const palette=['#176657','#98642e','#9a4755','#3567a2','#643c80'];
+    const lines=names.map((name,i)=>{
+      const item=document.createElement('span');
+      item.textContent=name;
+      item.style.color=palette[i];
+      document.querySelector('#recent-legend').append(item);
+      return {val:rows.map(row=>Number(row[i+1])),color:palette[i]};
+    });
+    chart(area,lines,rows.map(row=>row[0]),[150000]);
+  }catch(error){area.textContent=error.message}
+}
+showComparison();
+const form=document.querySelector('#settings');form.addEventListener('submit',e=>{e.preventDefault();load('/calculate?'+new URLSearchParams(new FormData(form)))});load('/calculate');
+</script></html>
